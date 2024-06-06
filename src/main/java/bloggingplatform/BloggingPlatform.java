@@ -10,7 +10,11 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
+
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Sorts.ascending;
 
 public class BloggingPlatform {
     public static Scanner scanner = new Scanner(System.in);
@@ -41,7 +45,9 @@ public class BloggingPlatform {
             System.out.println("4. Delete Post");
             System.out.println("5. Comment on Post");
             System.out.println("6. View Comments");
-            System.out.println("7. End");
+            System.out.println("7. Search Posts by Tags");
+            System.out.println("8. View Posts Sorted by Date");
+            System.out.println("9. End");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -64,6 +70,12 @@ public class BloggingPlatform {
                 // View all comments on a post by title
                 viewComments();
             }else if (choice == 7) {
+                // View all comments on a post by title
+                searchPostsByTag();
+            }else if (choice == 8) {
+                // View all comments on a post by title
+                viewPostsSortedByDate();
+            }else if (choice == 9) {
                 running = false;
             } else {
                 System.out.println("Invalid choice. Try again.");
@@ -79,12 +91,17 @@ public class BloggingPlatform {
         String description = scanner.nextLine();
         System.out.println("Author: ");
         String author = scanner.nextLine();
+        System.out.println("Tag: ");
+        String tag = scanner.nextLine();
+
 
         Document document = new Document()
                 .append("title", title)
                 .append("description", description)
                 .append("author", author)
-                .append("comments", new ArrayList<Document>());
+                .append("tag", tag)
+                .append("comments", new ArrayList<Document>())
+                .append("date", new Date());
 
 
         postsCollection.insertOne(document);
@@ -184,6 +201,21 @@ public class BloggingPlatform {
             }
         } else {
             System.out.println("Post does not exist.");
+        }
+    }
+
+    public static void searchPostsByTag() {
+        System.out.println("Enter tag to search: ");
+        String tag = scanner.nextLine();
+
+        for (Document doc : postsCollection.find(eq("tag", tag))) {
+            System.out.println(doc.toJson());
+        }
+    }
+
+    public static void viewPostsSortedByDate() {
+        for (Document doc : postsCollection.find().sort(ascending("date"))) {
+            System.out.println(doc.toJson());
         }
     }
 
