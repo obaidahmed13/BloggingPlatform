@@ -158,7 +158,7 @@ public class BloggingPlatform {
             return;
         }
 
-        // Checks if logged in user is the creator of post
+        // Checks if logged-in user is the creator of post
         String author = post.getString("author");
         if (!userName.equals(author)) {
             System.out.println("You can only update your own posts.");
@@ -216,12 +216,14 @@ public class BloggingPlatform {
         System.out.println("Enter tag to search: ");
         String tag = scanner.nextLine();
 
+        // Search posts based on tag
         for (Document doc : postsCollection.find(eq("tag", tag))) {
             System.out.println(doc.toJson());
         }
     }
 
     public static void viewPostsSortedByDate() {
+        // View posts by desc order
         for (Document doc : postsCollection.find().sort(descending("date"))) {
             System.out.println(doc.toJson());
         }
