@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.Scanner;
 
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Sorts.ascending;
+import static com.mongodb.client.model.Sorts.descending;
 
 public class BloggingPlatform {
     public static Scanner scanner = new Scanner(System.in);
@@ -94,7 +94,7 @@ public class BloggingPlatform {
         System.out.println("Tag: ");
         String tag = scanner.nextLine();
 
-
+        // Create a post, add data
         Document document = new Document()
                 .append("title", title)
                 .append("description", description)
@@ -113,6 +113,7 @@ public class BloggingPlatform {
         String postId = scanner.nextLine();
         ObjectId postIdUpdate = new ObjectId(postId);
 
+        // Find the post to update using ID
         Document post = postsCollection.find(new Document("_id", postIdUpdate)).first();
         System.out.println(post);
         if (post == null) {
@@ -120,6 +121,7 @@ public class BloggingPlatform {
             return;
         }
 
+        // Only allows you to update if you are the creator of the post
         String author = post.getString("author");
         if (!userName.equals(author)) {
             System.out.println("You can only update your own posts.");
@@ -131,6 +133,7 @@ public class BloggingPlatform {
         System.out.println("New Description: ");
         String description = scanner.nextLine();
 
+        // Updates the document with ID
         Document updateFilter = new Document("_id", postIdUpdate);
         Document update = new Document("$set", new Document("title", title).append("description", description));
         postsCollection.updateOne(updateFilter, update);
@@ -138,6 +141,7 @@ public class BloggingPlatform {
     }
 
     public static void viewPosts() {
+        // Prints all the posts in the collection
         for (Document doc : postsCollection.find()) {
             System.out.println(doc.toJson());
         }
@@ -154,12 +158,14 @@ public class BloggingPlatform {
             return;
         }
 
+        // Checks if logged in user is the creator of post
         String author = post.getString("author");
         if (!userName.equals(author)) {
             System.out.println("You can only update your own posts.");
             return;
         }
 
+        // Delete post by ID
         Document deletePost = new Document("_id", postIdDelete);
         postsCollection.deleteOne(deletePost);
         System.out.print("Post deleted successfully.");
@@ -173,6 +179,7 @@ public class BloggingPlatform {
         System.out.print("Comment Text: ");
         String commentText = scanner.nextLine();
 
+        // Insert author, text into comment array in post collection
         Document comment = new Document()
                 .append("author", commentAuthor)
                 .append("text", commentText);
@@ -188,6 +195,7 @@ public class BloggingPlatform {
 
         Document postToViewComments = postsCollection.find(new Document("title", postTitle)).first();
 
+        // Prints all comments of specific post by title
         if (postToViewComments != null) {
             ArrayList<Document> comments = (ArrayList<Document>) postToViewComments.get("comments");
             if (comments != null && !comments.isEmpty()) {
@@ -214,7 +222,7 @@ public class BloggingPlatform {
     }
 
     public static void viewPostsSortedByDate() {
-        for (Document doc : postsCollection.find().sort(ascending("date"))) {
+        for (Document doc : postsCollection.find().sort(descending("date"))) {
             System.out.println(doc.toJson());
         }
     }
